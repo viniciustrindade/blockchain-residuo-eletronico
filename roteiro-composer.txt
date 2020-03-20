@@ -1,0 +1,194 @@
+Instalar os pre-requisitos em ambiente Ubuntu 16.04:
+
+curl -O https://hyperledger.github.io/composer/latest/prereqs-ubuntu.sh
+
+chmod u+x prereqs-ubuntu.sh
+
+./prereqs-ubuntu.sh
+
+Após instalar o ambiente:
+
+npm install -g composer-cli@0.20
+
+npm install -g composer-rest-server@0.20
+
+npm install -g generator-hyperledger-composer@0.20
+
+npm install -g yo
+
+npm install -g composer-playground@0.20
+
+mkdir ~/fabric-tools && cd ~/fabric-tools
+
+curl -O https://raw.githubusercontent.com/hyperledger/composer-tools/master/packages/fabric-dev-servers/fabric-dev-servers.tar.gz
+tar -xvf fabric-dev-servers.tar.gz
+
+cd ~/fabric-tools
+export FABRIC_VERSION=hlfv12
+./downloadFabric.sh
+
+cd ~/fabric-tools
+export FABRIC_VERSION=hlfv12
+./startFabric.sh
+
+Em fabric-tools
+
+iniciar o composer com o comando composer-playground
+
+Caso o Fabric precise ser reiniciado: use ./teardownFabric.sh e ./startFabric.sh
+
+Conectar via web em http://<ip>:8000
+
+No ambiente do Composer na WEB:
+
+Clica em "Deploy a new business network" e define o nome da "business network" como, por exemplo, "tutorial-network"
+
+Usa o modelo de "empty-business-network" e pede para "Deploy" e "Connect Now"
+
+Na rede podemos usar a aba "Define" para fazer definições e a aba "Test" para interagir com a blockchain.
+
++ Add a file - Model File
+
+/**
+ * My commodity trading network
+ */ 
+namespace org.acme.mynetwork asset Commodity identified by tradingSymbol {
+    o String tradingSymbol
+    o String description
+    o String mainExchange
+    o Double quantity
+    --> Trader owner
+}
+participant Trader identified by tradeID {
+    o String tradeID
+    o String firstName
+    o String lastName
+}
+transaction Trade {
+    --> Commodity commodity
+    --> Trader newOwner
+}
+
++ Add a file - Script file (.js)
+
+/**
+ * Track the trade of a commodity from one trader to another
+ * @param {org.acme.mynetwork.Trade} trade - the trade to be processed
+ * @transaction
+ */
+
+async function tradeCommodity(trade) {
+    trade.commodity.owner = trade.newOwner;
+    let assetRegistry = await getAssetRegistry('org.acme.mynetwork.Commodity');
+    await assetRegistry.update(trade.commodity);
+}
+
+Clica em "Deploy changes"
+
+em Test
+
+criar dois Traders em Create new Participant
+
+{
+  "$class": "org.acme.mynetwork.Trader",
+  "tradeID": "TRADER1",
+  "firstName": "Jenny",
+  "lastName": "Jones"
+}
+
+{
+  "$class": "org.acme.mynetwork.Trader",
+  "tradeID": "TRADER2",
+  "firstName": "Amy",
+  "lastName": "Williams"
+}
+
+criar uma Commodity em Create new Asset
+
+{
+  "$class": "org.acme.mynetwork.Commodity",
+  "tradingSymbol": "ABC",
+  "description": "Test commodity",
+  "mainExchange": "Euronext",
+  "quantity": 72.297,
+  "owner": "resource:org.acme.mynetwork.Trader#TRADER1"
+}
+
+Todas transações ficam disponíveis em All transactions
+
+Criamos uma nova transação em "Submit a new transaction"
+
+{
+  "$class": "org.acme.mynetwork.Trade",
+  "commodity": "resource:org.acme.mynetwork.Commodity#ABC",
+  "newOwner": "resource:org.acme.mynetwork.Trader#TRADER2"
+}
+
+Após verificar a transação com "view Record" e após verificar na Commodity a nova proprietária
+
+Criando uma nova Business Network:
+
+yo hyperledger-composer:businessnetwork
+fornece tutorial-network como rede
+
+
+cd tutorial-network
+
+em models colocar o conteúdo do exemplo anterior, em lib o logic.js do exemplo anterior.
+
+touch permissions.acl
+
+com o conteúdo:
+
+/**
+ * Access control rules for tutorial-network
+ */
+rule Default {
+    description: "Allow all participants access to all resources"
+    participant: "ANY"
+    operation: ALL
+    resource: "org.example.biznet.*"
+    action: ALLOW
+}
+
+rule SystemACL {
+  description:  "System ACL to permit all access"
+  participant: "ANY"
+  operation: ALL
+  resource: "org.hyperledger.composer.system.**"
+  action: ALLOW
+}
+
+composer archive create -t dir -n .
+
+cria um arquivo .bna
+
+em fabric-tools
+
+./createPeerAdminCard.sh
+
+em tutorial-network
+
+composer network install --card PeerAdmin@hlfv1 --archiveFile tutorial-network@0.0.1.bna
+
+composer network start --networkName tutorial-network --networkVersion 0.0.1 --networkAdmin admin --networkAdminEnrollSecret adminpw --card PeerAdmin@hlfv1 --file networkadmin.card
+
+composer card import --file networkadmin.card
+
+composer network ping --card admin@tutorial-network
+
+composer-rest-server 
+indica a blockchain: admin@tutorial-network
+
+REST API para uso.
+
+Cria uma REST API para uso do contrato
+
+http://<ip>:3000/
+
+Referências:
+
+https://hyperledger.github.io/composer/latest/installing/installing-prereqs.html
+https://hyperledger.github.io/composer/latest/installing/development-tools.html
+https://hyperledger.github.io/composer/latest/tutorials/playground-tutorial.html
+https://hyperledger.github.io/composer/latest/tutorials/developer-tutorial.html
