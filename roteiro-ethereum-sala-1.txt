@@ -1,0 +1,64 @@
+Implementação da blockchain do Ethereum em GO: GETH
+
+Disponível em geth.ethereum.org/downloads/ (Go Ethereum)
+
+wget https://gethstore.blob.core.windows.net/builds/geth-linux-amd64-1.8.24-4e13a09c.tar.gz
+
+tar -zxpvf geth-linux-amd64-1.8.24-4e13a09c.tar.gz
+
+cd geth-linux-amd64-1.8.24-4e13a09c
+
+touch start.json
+
+{
+   "config": {
+      "chainId": 1994,
+      "homesteadBlock": 0,
+      "eip155Block": 0,
+      "eip158Block": 0,
+      "byzantiumBlock": 0
+   },
+   "difficulty": "0x0",
+   "gasLimit": "0x8000000",
+   "alloc": {}
+}
+
+Este start.json cria um genesis block com parametros de mineração bem favoráveis para teste com:
+
+sudo ./geth --datadir=./data init start.json
+
+sudo ./geth --networkid 999 --ipcpath $HOME/.ethereum/geth.ipc --rpc --rpcaddr "0.0.0.0" --rpcapi="db,eth,net,web3,personal,web3" --rpcport "8545" --datadir=./data console
+
+em outro console
+
+sudo ./geth attach /root/.ethereum/geth.ipc
+
+na console usar comandos como:
+
+criar nova conta:
+web3.personal.newAccount("teste123")
+
+listar contas:
+web3.personal.listAccounts
+
+ver saldo:
+web3.fromWei(eth.getBalance(eth.coinbase))
+
+minerar:
+miner.start(2)
+
+parar mineração:
+miner.stop
+
+Conectar uma Ethereum Wallet
+
+github.com/ethereum/mist/releases
+
+Ethereum Wallet
+
+Criar exemplo de sala na Ethereum Wallet com o exemplo:
+
+git clone https://github.com/enterprise-blockchain-book/first-edition
+
+
+

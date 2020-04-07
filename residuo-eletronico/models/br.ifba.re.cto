@@ -1,0 +1,67 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * Sample business network definition.
+ */
+namespace br.ifba.re
+
+asset ResiduoEletronicoAsset identified by assetId {
+  o String assetId
+  --> ConsumidorParticipant owner
+  o String descricao
+  o String status  // DEPOSITADO, RECOLHIDO
+  o String destino
+}
+
+participant ConsumidorParticipant identified by participantId {
+  o String participantId
+  o String nome
+  o String cpf
+}
+
+participant EmpresaParticipant identified by participantId {
+  o String participantId
+  o String razaoSocial
+  o String cnpj
+}
+
+participant PrefeituraParticipant identified by participantId {
+  o String participantId
+  o String razaoSocial
+  o String cnpj
+}
+
+transaction ConsumidorTransaction {
+  --> ResiduoEletronicoAsset asset
+}
+
+transaction EmpresaReciclaggemTransaction {
+  --> ResiduoEletronicoAsset asset
+  o String newDestino
+}
+
+event ResiduoEletronicoConsumidorEvent {
+  --> ResiduoEletronicoAsset asset
+  o String newStatus
+}
+
+event ResiduoEletronicoEmpresaEvent {
+  --> ResiduoEletronicoAsset asset
+  o String oldStatus
+  o String newStatus
+  o String newDestino
+}
+
+

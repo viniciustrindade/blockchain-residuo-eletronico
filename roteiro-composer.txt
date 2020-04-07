@@ -8,15 +8,7 @@ chmod u+x prereqs-ubuntu.sh
 
 Após instalar o ambiente:
 
-npm install -g composer-cli@0.20
-
-npm install -g composer-rest-server@0.20
-
-npm install -g generator-hyperledger-composer@0.20
-
-npm install -g yo
-
-npm install -g composer-playground@0.20
+	
 
 mkdir ~/fabric-tools && cd ~/fabric-tools
 
@@ -188,7 +180,7 @@ http://<ip>:3000/
 
 Referências:
 
-https://hyperledger.github.io/composer/latest/installing/installing-prereqs.html
+	
 https://hyperledger.github.io/composer/latest/installing/development-tools.html
 https://hyperledger.github.io/composer/latest/tutorials/playground-tutorial.html
 https://hyperledger.github.io/composer/latest/tutorials/developer-tutorial.html
